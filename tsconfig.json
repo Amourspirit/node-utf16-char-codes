@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es2015",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./lib",
+    "strict": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "typeRoots": ["node_modules/@types"],
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "tests"]
+}
