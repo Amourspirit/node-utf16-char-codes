@@ -14,6 +14,7 @@
   "types": "./index.d.ts",
   "scripts": {
     "test": "grunt build && grunt test",
+    "mtest": "mocha -r ts-node/register tests/**/*.test.ts",
     "testWithCoverage": "nyc -r lcov -e .ts -x \"*.test.ts\" mocha -r ts-node/register tests/**/*.test.ts && nyc report"
   },
   "files": [

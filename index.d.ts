@@ -3,3 +3,4 @@ export interface ICodePointOptions {
     unique: boolean;
 }
 export declare const codePoints: (str: string, option?: ICodePointOptions | undefined) => number[];
+export declare const codePointFullWidth: (codePoint: number) => boolean;
