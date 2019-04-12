@@ -100,6 +100,19 @@ module.exports = function (grunt) {
         expand: true,
         dest: 'scratch/nc/'
       },
+      ext: {
+        options: {
+          multiline: true, // Whether to remove multi-line block comments
+          singleline: true, // Whether to remove the comment of a single line.
+          keepSpecialComments: false, // Whether to keep special comments, like: /*! !*/
+          linein: true, // Whether to remove a line-in comment that exists in the line of code, it can be interpreted as a single-line comment in the line of code with /* or //.
+          isCssLinein: false // Whether the file currently being processed is a CSS file
+        },
+        cwd: 'src/ext/',
+        src: '**/*.js',
+        expand: true,
+        dest: 'scratch/nc/ext/'
+      },
     },
     prettier: {
       format_js: {
@@ -135,13 +148,15 @@ module.exports = function (grunt) {
           src: './lib/main.d.ts',
           dest: './index.d.ts'
           // expand: false
-        },
-        {
-          src: './scratch/nc/main.js',
-          dest: './index.js'
-        }],
+        }]
       }
-    }
+    },
+    concat: {
+      ext: {
+        src: ['./scratch/nc/main.js', 'scratch/nc/ext/codePointAtExt.js'],
+        dest: './index.js'
+      }
+    },
   });
   // #endregion
   // #region grunt require and load npm task
@@ -223,13 +238,15 @@ module.exports = function (grunt) {
      */
     'shell:tsc',
     'remove_comments:js',
+    'remove_comments:ext',
     /**
      * Task shell: prettier
      * Runs prettier from package.json
      */
     // 'prettier:format_js',
     // 'uglify:js',
-    'copy:d'
+    'copy:d',
+    'concat:ext'
   ]);
   // #region git
   grunt.registerTask('gitver', [

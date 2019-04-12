@@ -1,3 +1,5 @@
+import { prototype } from "stream";
+
 export const codePointAt = (str: string, position: number = 0): number | undefined => {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
   if (str === null || str === undefined) {
