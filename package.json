@@ -1,6 +1,6 @@
 {
   "name": "utf16-char-codes",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Get location of code point in a string or get code points from string",
   "homepage": "https://github.com/Amourspirit/node-utf16-char-codes",
   "repository": {

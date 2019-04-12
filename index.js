@@ -1,40 +1,41 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.codePointAt = (str, position = 0) => {
+exports.__esModule = true;
+exports.codePointAt = function (str, position) {
+    if (position === void 0) { position = 0; }
     if (str === null || str === undefined) {
         throw TypeError();
     }
     str = String(str);
-    const size = str.length;
-    let i = position ? Number(position) : 0;
+    var size = str.length;
+    var i = position ? Number(position) : 0;
     if (Number.isNaN(i)) {
         i = 0;
     }
     if (i < 0 || i >= size) {
         return undefined;
     }
-    const first = str.charCodeAt(i);
+    var first = str.charCodeAt(i);
     if (first >= 0xD800 && first <= 0xDBFF && size > i + 1) {
-        const second = str.charCodeAt(i + 1);
+        var second = str.charCodeAt(i + 1);
         if (second >= 0xDC00 && second <= 0xDFFF) {
             return ((first - 0xD800) * 0x400) + second - 0xDC00 + 0x10000;
         }
     }
     return first;
 };
-exports.codePoints = (str, option) => {
+exports.codePoints = function (str, option) {
     option = option || { unique: false };
     if (typeof str !== 'string') {
-        throw new TypeError(`Argument str must be type of string.`);
+        throw new TypeError("Argument str must be type of string.");
     }
-    const result = [];
-    let index = 0;
-    let strC;
+    var result = [];
+    var index = 0;
+    var strC;
     while (index < str.length) {
         strC = str.charAt(index) + str.charAt(index + 1);
-        const point = Number(exports.codePointAt(strC));
+        var point = Number(exports.codePointAt(strC));
         if (Number.isNaN(point)) {
-            throw new Error(`An error occured getting code points. Unable to get code point at positions: ${index} and ${index + 1}`);
+            throw new Error("An error occured getting code points. Unable to get code point at positions: " + index + " and " + (index + 1));
         }
         if (point > 0xffff) {
             index += 2;
@@ -49,7 +50,7 @@ exports.codePoints = (str, option) => {
     }
     return result;
 };
-exports.codePointFullWidth = (codePoint) => {
+exports.codePointFullWidth = function (codePoint) {
     if (Number.isNaN(codePoint)) {
         return false;
     }
