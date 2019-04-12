@@ -1,3 +1,7 @@
+(function () {
+  "use strict";
+  // Define your library strictly...
+})();
 module.exports = function (grunt) {
   var isWin = process.platform === "win32";
   var nodeMajor = _getNodeMajor();
