@@ -13,7 +13,7 @@
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "test": "grunt --verbose build && grunt test",
+    "test": "./node_modules/.bin/grunt --verbose build && grunt test",
     "mtest": "mocha -r ts-node/register tests/**/*.test.ts",
     "testWithCoverage": "nyc -r lcov -e .ts -x \"*.test.ts\" mocha -r ts-node/register tests/**/*.test.ts && nyc report"
   },
