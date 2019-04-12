@@ -5,6 +5,8 @@ node_js:
     - '8'
     - '6'
     - '4'
+before_install:
+  - if [[ `npm -v` =~ ^[1-2] ]]; then npm i -g npm@3; fi
 branches:
   only:
   - master
