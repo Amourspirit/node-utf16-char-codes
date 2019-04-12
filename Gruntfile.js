@@ -205,6 +205,7 @@ module.exports = function (grunt) {
   grunt.registerTask('test', [
     'clean:test',
     'run_test',
+    'run_test_js',
     'clean:test'
   ]);
   grunt.registerTask('run_test', 'run mocha', function () {
@@ -221,7 +222,23 @@ module.exports = function (grunt) {
       } else {
         cmd = 'npx mocha -r ts-node/register tests/**/*.test.ts';
       }
-
+    }
+    require('child_process').exec(cmd, function (err, stdout) {
+      grunt.log.write(stdout);
+      done(err);
+    });
+  });
+  grunt.registerTask('run_test_js', 'run mocha', function () {
+    var done = this.async();
+    var cmd = '';
+    if (isWin === true) {
+      cmd = 'npx mocha tests/**/*.test.js'; // '.\\node_modules\\.bin\\mocha.cmd';
+    } else {
+      if (nodeMajor <= 6) {
+        cmd = '$(which node) $(which mocha) tests/**/*.test.js';
+      } else {
+        cmd = 'npx mocha tests/**/*.test.js';
+      }
     }
     require('child_process').exec(cmd, function (err, stdout) {
       grunt.log.write(stdout);
