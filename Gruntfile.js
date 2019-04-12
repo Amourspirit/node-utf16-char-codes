@@ -5,6 +5,15 @@
 module.exports = function (grunt) {
   var isWin = process.platform === "win32";
   var nodeMajor = _getNodeMajor();
+  var isES6Plus = false;
+  try {
+    var es6Map = new Map();
+    isES6Plus = true;
+    grunt.log.writeln('ES6 (es2015) or greater');
+    es6Map = null;
+  } catch (err) {
+    grunt.log.writeln("ES6 not supported :(");
+  }
   // #region Functions
   function _getNodeMajor() {
     // https://www.regexpal.com/?fam=108819
