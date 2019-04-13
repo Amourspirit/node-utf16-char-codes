@@ -14,7 +14,7 @@ function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 // #end region
-
+const fullWidth = 'ＦＵＬＬＷＩＤＴＨ ＴＥＸＴ';
 describe("Test codePointFullWidth", () => {
   it('should return true for char あ', (done) => {
     expect(codePointFullWidth(Number(codePointAt('あ')))).equal(true);
@@ -22,6 +22,12 @@ describe("Test codePointFullWidth", () => {
   });
   it('should return true for char 谢', (done) => {
     expect(codePointFullWidth(Number(codePointAt('谢')))).equal(true);
+    done();
+  });
+  it('should return true for random char from ＦＵＬＬＷＩＤＴＨ ＴＥＸＴ', (done) => {
+    let ran = getRandomInt(0, 13);
+    let p = Number(fullWidth.codePointAt(ran));
+    expect(codePointFullWidth(p)).equal(true);
     done();
   });
   it('should return true for char 고', (done) => {

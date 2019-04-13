@@ -5,6 +5,14 @@ describe("Test codePoints", () => {
     expect(codePoints('10')).deep.equal([49, 48]);
     done();
   });
+  it('should return code points of the string Hello World!', (done) => {
+    expect(codePoints('Hello World!')).deep.equal([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]);
+    done();
+  });
+  it('should return code points of the string Hello World! that are unique', (done) => {
+    expect(codePoints('Hello World!', true)).deep.equal([72, 101, 108, 111, 32, 87, 114, 100, 33]);
+    done();
+  });
   it('should return code points of the string 0𧌠嶲0𧏨', (done) => {
     expect(codePoints('0𧌠嶲0𧏨')).deep.equal([48, 160544, 195060, 48, 160744]);
     done();
@@ -14,7 +22,7 @@ describe("Test codePoints", () => {
     done();
   });
   it('should return an empty array when it takes an empty string.', (done) => {
-    expect(codePoints('', { unique: true })).deep.equal([]);
+    expect(codePoints('', true)).deep.equal([]);
     done();
   });
   it('should return a long array when it «-(¯`v´¯)-«【🇺​🇹​🇫​►🇨​🇴​🇩​🇪​-🇵​🇴​🇮​🇳​🇹​🇸​】»-(¯`v´¯)-»', (done) => {

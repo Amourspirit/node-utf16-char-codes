@@ -162,7 +162,7 @@ module.exports = function (grunt) {
     },
     concat: {
       ext: {
-        src: ['./scratch/nc/main.js', 'scratch/nc/ext/codePointAtExt.js'],
+        src: ['./scratch/nc/main.js', 'scratch/nc/ext/codePointAtExt.js', 'scratch/nc/ext/fromCodePointExt.js'],
         dest: './index.js'
       }
     },

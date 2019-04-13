@@ -1,6 +1,6 @@
 {
   "name": "utf16-char-codes",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Get location of code point in a string or get code points from string",
   "homepage": "https://github.com/Amourspirit/node-utf16-char-codes",
   "repository": {
@@ -15,6 +15,7 @@
   "scripts": {
     "test": "grunt build && grunt test",
     "mtest": "mocha -r ts-node/register tests/**/*.test.ts",
+    "jtest": "mocha tests/**/*.test.js",
     "testWithCoverage": "nyc -r lcov -e .ts -x \"*.test.ts\" mocha -r ts-node/register tests/**/*.test.ts && nyc report"
   },
   "files": [
