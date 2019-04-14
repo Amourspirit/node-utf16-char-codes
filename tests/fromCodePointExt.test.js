@@ -11,7 +11,7 @@ describe('String.fromCodePoint: Remove String fromCodePoint', function () {
   });
 });
 
-describe('String.fromCodePoint: Import of index.js should reassign String codePointAt to index.js version', function () {
+describe('String.fromCodePoint: Import of index.js should reassign String fromCodePoint to index.js version', function () {
   it('should have a String fromCodePoint again', function (done) {
     expect(String.fromCodePoint).equal(null);
     eval(fs.readFileSync(process.cwd() + '/index.js').toString());
