@@ -5,7 +5,8 @@
  *
  * This module also will add the String.prototype.codePointAt method if it does not exist
  * @param str String to get the position from
- * @param pos Position of an element in the String to return the code point value from.
+ * @param pos (optional) Position of an element in the String to return the code point value from.
+ * Default 0
  * @returns Returns a nonnegative integer Number less than 1114112 (0x110000) that is the
  * code point value of the UTF-16 encoded code point starting at the string element at
  * position pos in the String resulting from converting this object to a String.
@@ -45,7 +46,7 @@ export interface ICodePointOptions {
  * Gets the code points for a string
  * @param str The input string to get the code points for.
  * @param opts (optional) Options, if boolean is passed in it will determine if the
- * method redurns unique code points. If true only code points that are unique will be returned in the array.
+ * method returns unique code points. If true only code points that are unique will be returned in the array.
  * @returns a number array of integers matching the code points of str.
  * @example
  ```ts
@@ -68,8 +69,8 @@ import { codePointFullWidth } from 'utf16-char-codes';
 const fullWidth = 'ＦＵＬＬＷＩＤＴＨ ＴＥＸＴ';
 let p = Number(fullWidth.codePointAt(3));
 console.log(codePointFullWidth(p)); // true
-console.log(codePointFullWidth(Number(codePointAt('고')))); // true
-console.log(codePointFullWidth(Number(codePointAt('A')))); // false
+console.log(codePointFullWidth(Number(('고').codePointAt(0)))); // true
+console.log(codePointFullWidth(Number(('A').codePointAt(0)))); // false
 console.log(codePointFullWidth(Infinity)); // false
 ```
  * see: https://unicode-table.com/en/blocks/halfwidth-and-fullwidth-forms/
