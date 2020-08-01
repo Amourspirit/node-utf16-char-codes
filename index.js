@@ -11,6 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
+exports.fromCodePoint = exports.codePointFullWidth = exports.codePoints = exports.codePointAt = void 0;
 exports.codePointAt = function (str, pos) {
     if (pos === void 0) { pos = 0; }
     if (str === null || str === undefined) {

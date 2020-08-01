@@ -77,10 +77,9 @@ module.exports = function (grunt) {
     clean: {
       dirs: ['scratch', 'dist', 'lib'],
       test: ['scratch'],
+      min: ['./min/node_utf16_char_codes.min.js', './min/node_utf16_char_codes.js.map'],
       files: [
         './index.js',
-        './utf16-code-point.min.js',
-        './utf16-code-point.min.js.map',
         'index.d.ts'
       ]
     },
@@ -93,7 +92,9 @@ module.exports = function (grunt) {
     },
 
     shell: {
-      tsc: 'tsc'
+      tsc: 'tsc',
+      tsces6: 'tsc @tsconfiges3.txt',
+      uglifyjs: 'npx uglifyjs --compress --mangle --output ./min/node_utf16_char_codes.min.js -- scratch/main_combined.js'
     },
     remove_comments: {
       js: {
@@ -139,17 +140,6 @@ module.exports = function (grunt) {
         }
       }
     },
-    uglify: {
-      js: {
-        options: {
-          sourceMap: true,
-          mangle: true,
-        },
-        files: {
-          "utf16-code-point.min.js": 'lib/main.js'
-        }
-      }
-    },
     copy: {
       d: {
         files: [{
@@ -164,8 +154,12 @@ module.exports = function (grunt) {
       ext: {
         src: ['./scratch/nc/main.js', 'scratch/nc/ext/codePointAtExt.js', 'scratch/nc/ext/fromCodePointExt.js'],
         dest: './index.js'
+      },
+      ext_es6: {
+        src: ['./lib/es6/main.js', './src/ext/codePointAtExt.js', './src/ext/fromCodePointExt.js'],
+        dest: './scratch/main_combined.js'
       }
-    },
+    }
   });
   // #endregion
   // #region grunt require and load npm task
@@ -173,7 +167,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-prettier');
   grunt.loadNpmTasks('grunt-remove-comments');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
   // #endregion
   grunt.registerTask('default', [
@@ -245,6 +238,13 @@ module.exports = function (grunt) {
       done(err);
     });
   });
+  grunt.registerTask('es6', [
+    'clean:dirs',
+    'clean:min',
+    'shell:tsces6',
+    'concat:ext_es6',
+    'shell:uglifyjs'
+  ]);
   grunt.registerTask('build', [
     'env:build',
     /*
