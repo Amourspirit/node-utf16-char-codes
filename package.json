@@ -1,6 +1,6 @@
 {
   "name": "utf16-char-codes",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Get location of code point in a string or get code points from string",
   "homepage": "https://github.com/Amourspirit/node-utf16-char-codes",
   "repository": {
@@ -63,7 +63,9 @@
     "grunt-env": "^1.0.1",
     "grunt-prettier": "^2.1.0",
     "grunt-remove-comments": "^0.1.6",
+    "grunt-replace": "^1.0.1",
     "grunt-shell": "^3.0.1",
+    "grunt-terser": "^1.0.0",
     "grunt-tslint": "^5.0.2",
     "load-grunt-tasks": "^5.1.0",
     "mocha": "^8.1.0",
@@ -71,7 +73,6 @@
     "ts-node": "^8.10.2",
     "tslint": "^6.1.3",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.9.7",
-    "uglify-es": "^3.3.9"
+    "typescript": "^3.9.7"
   }
 }

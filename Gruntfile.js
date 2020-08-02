@@ -21,6 +21,17 @@ module.exports = function (grunt) {
     var major = s.replace(/v?(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)/, '$1');
     return parseInt(major, 10);
   }
+  function appendToFile(file, str) {
+    var options = {
+      // If an encoding is not specified, default to grunt.file.defaultEncoding.
+      // If specified as null, returns a non-decoded Buffer instead of a string.
+      encoding: 'utf8'
+    };
+    var contents=grunt.file.read(file, options);
+    contents+=str;
+    grunt.file.delete(file, {force:true});
+    grunt.file.write(file, contents, options);
+  }
   function bumpVerson(segment) {
     var file = 'package.json';
     var jpkg = grunt.file.readJSON(file);
@@ -77,7 +88,7 @@ module.exports = function (grunt) {
     clean: {
       dirs: ['scratch', 'dist', 'lib'],
       test: ['scratch'],
-      min: ['./min/node_utf16_char_codes.min.js', './min/node_utf16_char_codes.js.map'],
+      js: ['js'],
       files: [
         './index.js',
         'index.d.ts'
@@ -94,7 +105,6 @@ module.exports = function (grunt) {
     shell: {
       tsc: 'tsc',
       tsces6: 'tsc @tsconfiges3.txt',
-      uglifyjs: 'npx uglifyjs --compress --mangle --output ./min/node_utf16_char_codes.min.js -- scratch/main_combined.js'
     },
     remove_comments: {
       js: {
@@ -109,6 +119,18 @@ module.exports = function (grunt) {
         src: '**/*.js',
         expand: true,
         dest: 'scratch/nc/'
+      },
+      es6_js: {
+        options: {
+          multiline: true, // Whether to remove multi-line block comments
+          singleline: true, // Whether to remove the comment of a single line.
+          keepSpecialComments: false, // Whether to keep special comments, like: /*! !*/
+          linein: true, // Whether to remove a line-in comment that exists in the line of code, it can be interpreted as a single-line comment in the line of code with /* or //.
+          isCssLinein: false // Whether the file currently being processed is a CSS file
+        },
+        src: './scratch/es6/main.js',
+        expand: false,
+        dest: './scratch/es6/node_utf16_char_codes.js'
       },
       ext: {
         options: {
@@ -148,6 +170,16 @@ module.exports = function (grunt) {
           dest: './index.d.ts'
           // expand: false
         }]
+      },
+      es6: {
+        files: [{
+          src: './scratch/es6/node_utf16_char_codes.js',
+          dest: './js/node_utf16_char_codes.js'
+        },
+        {
+          src: './scratch/es6/node_utf16_char_codes.min.js',
+          dest: './js/node_utf16_char_codes.min.js'
+        }]
       }
     },
     concat: {
@@ -157,7 +189,33 @@ module.exports = function (grunt) {
       },
       ext_es6: {
         src: ['./lib/es6/main.js', './src/ext/codePointAtExt.js', './src/ext/fromCodePointExt.js'],
-        dest: './scratch/main_combined.js'
+        dest: './scratch/es6/main.js'
+      }
+    },
+    terser: {
+      main: {
+        options: {
+          sourceMap: true
+        },
+        files: {
+          'scratch/es6/node_utf16_char_codes.min.js': [
+            './scratch/es6/node_utf16_char_codes.js'          ]
+        }
+      }
+    },
+    replace: {
+      es6_map: {
+        options: {
+          patterns: [
+            {
+              match: /"sources":\["\.\/scratch\/es6\/(.*?)"]/g,
+              replacement: '"sources":["$1"]'
+            }
+          ]
+        },
+        files: [
+          { expand: true, flatten: true, src: ['scratch/es6/node_utf16_char_codes.min.js.map'], dest: 'js/' }
+        ]
       }
     }
   });
@@ -168,6 +226,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-prettier');
   grunt.loadNpmTasks('grunt-remove-comments');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-replace');
   // #endregion
   grunt.registerTask('default', [
     'build'
@@ -238,12 +297,21 @@ module.exports = function (grunt) {
       done(err);
     });
   });
+  grunt.registerTask('append_map_es6', function () {
+    var file ='scratch/es6/node_utf16_char_codes.min.js';
+    var strMap ='\n//# sourceMappingURL=node_utf16_char_codes.min.js.map';
+    appendToFile(file, strMap);
+  });
   grunt.registerTask('es6', [
     'clean:dirs',
-    'clean:min',
+    'clean:js',
     'shell:tsces6',
     'concat:ext_es6',
-    'shell:uglifyjs'
+    'remove_comments:es6_js',
+    'terser:main',
+    'append_map_es6',
+    'copy:es6',
+    'replace:es6_map'
   ]);
   grunt.registerTask('build', [
     'env:build',
