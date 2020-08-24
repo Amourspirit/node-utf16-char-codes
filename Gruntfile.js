@@ -1,13 +1,19 @@
-(function () {
+(() => {
   "use strict";
   // Define your library strictly...
 })();
-module.exports = function (grunt) {
-  var isWin = process.platform === "win32";
-  var nodeMajor = _getNodeMajor();
-  var isES6Plus = false;
+module.exports = (grunt) => {
+  const isWin = process.platform === "win32";
+  const getNodeMajor = () => {
+    // https://www.regexpal.com/?fam=108819
+    const s = process.version;
+    const major = s.replace(/v?(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)/, '$1');
+    return parseInt(major, 10);
+  }
+  const nodeMajor = getNodeMajor();
+  const isES6Plus = false;
   try {
-    var es6Map = new Map();
+    const es6Map = new Map();
     isES6Plus = true;
     grunt.log.writeln('ES6 (es2015) or greater');
     es6Map = null;
@@ -15,32 +21,27 @@ module.exports = function (grunt) {
     grunt.log.writeln("ES6 not supported :(");
   }
   // #region Functions
-  function _getNodeMajor() {
-    // https://www.regexpal.com/?fam=108819
-    var s = process.version;
-    var major = s.replace(/v?(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)/, '$1');
-    return parseInt(major, 10);
-  }
-  function appendToFile(file, str) {
-    var options = {
+
+  const appendToFile = (file, str) => {
+    const options = {
       // If an encoding is not specified, default to grunt.file.defaultEncoding.
       // If specified as null, returns a non-decoded Buffer instead of a string.
       encoding: 'utf8'
     };
-    var contents=grunt.file.read(file, options);
-    contents+=str;
-    grunt.file.delete(file, {force:true});
+    let contents = grunt.file.read(file, options);
+    contents += str;
+    grunt.file.delete(file, { force: true });
     grunt.file.write(file, contents, options);
   }
-  function bumpVerson(segment) {
-    var file = 'package.json';
-    var jpkg = grunt.file.readJSON(file);
-    var verRegex = /(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)/;
-    var verStr = jpkg.version;
-    var major = parseInt(verStr.replace(verRegex, '$1'), 10);
-    var minor = parseInt(verStr.replace(verRegex, '$2'), 10);
-    var build = parseInt(verStr.replace(verRegex, '$3'), 10);
-    var save = false;
+  const bumpVerson = (segment) => {
+    const file = 'package.json';
+    const jpkg = grunt.file.readJSON(file);
+    const verRegex = /(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)/;
+    const verStr = jpkg.version;
+    const major = parseInt(verStr.replace(verRegex, '$1'), 10);
+    const minor = parseInt(verStr.replace(verRegex, '$2'), 10);
+    const build = parseInt(verStr.replace(verRegex, '$3'), 10);
+    const save = false;
     if (segment === 'build') {
       build++;
       save = true;
@@ -55,7 +56,7 @@ module.exports = function (grunt) {
       save = true;
     }
     if (save === true) {
-      var newVer = major + '.' + minor + '.' + build;
+      const newVer = major + '.' + minor + '.' + build;
       jpkg.version = newVer;
       grunt.file.write(file, JSON.stringify(jpkg, null, 2));
       return newVer;
@@ -70,16 +71,16 @@ module.exports = function (grunt) {
     env: {
       dev: {
         NODE_ENV: 'development',
-        VERSION: function () {
-          var j = grunt.file.readJSON('package.json');
+        VERSION: () => {
+          const j = grunt.file.readJSON('package.json');
           this.pkg = j;
           return j.version;
         }
       },
       build: {
         NODE_ENV: 'production',
-        VERSION: function () {
-          var j = grunt.file.readJSON('package.json');
+        VERSION: () => {
+          const j = grunt.file.readJSON('package.json');
           this.pkg = j;
           return j.version;
         }
@@ -199,7 +200,7 @@ module.exports = function (grunt) {
         },
         files: {
           'scratch/es6/node_utf16_char_codes.min.js': [
-            './scratch/es6/node_utf16_char_codes.js'          ]
+            './scratch/es6/node_utf16_char_codes.js']
         }
       }
     },
@@ -249,7 +250,7 @@ module.exports = function (grunt) {
     'gitver'
   ]);
   grunt.registerTask('envcheck', ['version_bump:build', 'env:dev', 'devtest']);
-  grunt.registerTask('ver', function () {
+  grunt.registerTask('ver', () => {
     grunt.log.writeln('output from task ver');
     grunt.log.writeln("BUILD_VERSION:" + BUILD_VERSION);
     grunt.log.writeln("packageData.version:" + packageData.version);
@@ -261,11 +262,11 @@ module.exports = function (grunt) {
     'clean:test'
   ]);
   grunt.registerTask('run_test', 'run mocha', function () {
-    var done = this.async();
+    const done = this.async();
     // exec works with $(which mocha) except on travis ci below nodejs version 8
     // exec $(which node) $(which mocha) works on all tested versions
     grunt.log.writeln("Node Major Version:", nodeMajor);
-    var cmd = '';
+    let cmd = '';
     if (isWin === true) {
       cmd = 'npx mocha -r ts-node/register tests/**/*.test.ts'; // '.\\node_modules\\.bin\\mocha.cmd';
     } else {
@@ -275,14 +276,14 @@ module.exports = function (grunt) {
         cmd = 'npx mocha -r ts-node/register tests/**/*.test.ts';
       }
     }
-    require('child_process').exec(cmd, function (err, stdout) {
+    require('child_process').exec(cmd, (err, stdout) => {
       grunt.log.write(stdout);
       done(err);
     });
   });
   grunt.registerTask('run_test_js', 'run mocha', function () {
-    var done = this.async();
-    var cmd = '';
+    const done = this.async();
+    let cmd = '';
     if (isWin === true) {
       cmd = 'npx mocha tests/**/*.test.js'; // '.\\node_modules\\.bin\\mocha.cmd';
     } else {
@@ -292,14 +293,14 @@ module.exports = function (grunt) {
         cmd = 'npx mocha tests/**/*.test.js';
       }
     }
-    require('child_process').exec(cmd, function (err, stdout) {
+    require('child_process').exec(cmd, (err, stdout) => {
       grunt.log.write(stdout);
       done(err);
     });
   });
-  grunt.registerTask('append_map_es6', function () {
-    var file ='scratch/es6/node_utf16_char_codes.min.js';
-    var strMap ='\n//# sourceMappingURL=node_utf16_char_codes.min.js.map';
+  grunt.registerTask('append_map_es6', () => {
+    const file = 'scratch/es6/node_utf16_char_codes.min.js';
+    const strMap = '\n//# sourceMappingURL=node_utf16_char_codes.min.js.map';
     appendToFile(file, strMap);
   });
   grunt.registerTask('es6', [
@@ -350,54 +351,54 @@ module.exports = function (grunt) {
     'gitverpush'
   ]);
 
-  grunt.registerTask('gitveradd', 'run git add', function () {
-    var command = 'git add .';
+  grunt.registerTask('gitveradd', 'run git add', () => {
+    const command = 'git add .';
     grunt.log.writeln("Executing command:" + command);
-    var done = this.async();
-    require('child_process').exec(command, function (err, stdout) {
+    const done = this.async();
+    require('child_process').exec(command, (err, stdout) => {
       grunt.log.write(stdout);
       done(err);
     });
   });
-  grunt.registerTask('gitvercommit', 'run git commit', function () {
-    var command = 'git commit -m "' + process.env.VERSION + '"';
+  grunt.registerTask('gitvercommit', 'run git commit', () => {
+    const command = 'git commit -m "' + process.env.VERSION + '"';
     grunt.log.writeln("Executing command:" + command);
-    var done = this.async();
-    require('child_process').exec(command, function (err, stdout) {
+    const done = this.async();
+    require('child_process').exec(command, (err, stdout) => {
       grunt.log.write(stdout);
       done(err);
     });
   });
-  grunt.registerTask('gitvertag', 'run git tag', function () {
-    var command = 'git tag v' + process.env.VERSION;
+  grunt.registerTask('gitvertag', 'run git tag', () => {
+    const command = 'git tag v' + process.env.VERSION;
     grunt.log.writeln("Executing command:" + command);
-    var done = this.async();
-    require('child_process').exec(command, function (err, stdout) {
+    const done = this.async();
+    require('child_process').exec(command, (err, stdout) => {
       grunt.log.write(stdout);
       done(err);
     });
   });
-  grunt.registerTask('gitverpush', 'run git push', function () {
-    var command = 'git push origin && git push --tag';
+  grunt.registerTask('gitverpush', 'run git push', () => {
+    const command = 'git push origin && git push --tag';
     grunt.log.writeln("Executing command:" + command);
-    var done = this.async();
-    require('child_process').exec(command, function (err, stdout) {
+    const done = this.async();
+    require('child_process').exec(command, (err, stdout) => {
       grunt.log.write(stdout);
       done(err);
     });
   });
   // #endregion
   // #region Version
-  grunt.registerTask('bumpBuild', 'Bump version build level', function () {
-    var ver = bumpVerson('build');
+  grunt.registerTask('bumpBuild', 'Bump version build level', () => {
+    const ver = bumpVerson('build');
     grunt.log.writeln('Current Version', ver);
   });
-  grunt.registerTask('bumpMinor', 'Bump version minor level', function () {
-    var ver = bumpVerson('minor');
+  grunt.registerTask('bumpMinor', 'Bump version minor level', () => {
+    const ver = bumpVerson('minor');
     grunt.log.writeln('Current Version', ver);
   });
-  grunt.registerTask('bumpMajor', 'Bump version minor level', function () {
-    var ver = bumpVerson('major');
+  grunt.registerTask('bumpMajor', 'Bump version minor level', () => {
+    const ver = bumpVerson('major');
     grunt.log.writeln('Current Version', ver);
   });
   // #endregion
