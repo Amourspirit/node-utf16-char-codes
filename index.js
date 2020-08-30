@@ -140,7 +140,7 @@ const getCpOptions = (defaultOptions, options) => {
         return defaultOptions;
     }
     if (typeof options === 'boolean') {
-        defaultOptions = Object.assign({}, defaultOptions);
+        defaultOptions = { ...defaultOptions };
         defaultOptions.unique = options;
         options = defaultOptions;
     }

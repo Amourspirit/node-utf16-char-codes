@@ -135,19 +135,6 @@ module.exports = (grunt) => {
         expand: false,
         dest: './scratch/es6/node_utf16_char_codes.js'
       },
-      ext: {
-        options: {
-          multiline: true, // Whether to remove multi-line block comments
-          singleline: true, // Whether to remove the comment of a single line.
-          keepSpecialComments: false, // Whether to keep special comments, like: /*! !*/
-          linein: true, // Whether to remove a line-in comment that exists in the line of code, it can be interpreted as a single-line comment in the line of code with /* or //.
-          isCssLinein: false // Whether the file currently being processed is a CSS file
-        },
-        cwd: 'src/ext/',
-        src: '**/*.js',
-        expand: true,
-        dest: 'scratch/nc/ext/'
-      },
     },
     prettier: {
       format_js: {
@@ -265,6 +252,7 @@ module.exports = (grunt) => {
   });
   grunt.registerTask('test', [
     'clean:test',
+    'compile_test',
     'run_test',
     'run_test_js',
     'clean:test'
@@ -274,14 +262,16 @@ module.exports = (grunt) => {
     // exec works with $(which mocha) except on travis ci below nodejs version 8
     // exec $(which node) $(which mocha) works on all tested versions
     grunt.log.writeln("Node Major Version:", nodeMajor);
+    const mRequire = "--require ts-node/register 'tests/**/*.test.ts'";
+    const mEnv = 'env TS_NODE_PROJECT="tsconfig.test.json"';
     let cmd = '';
     if (isWin === true) {
-      cmd = 'npx mocha -r ts-node/register tests/**/*.test.ts'; // '.\\node_modules\\.bin\\mocha.cmd';
+      cmd = `npx ${mEnv} mocha ${mRequire}`; // '.\\node_modules\\.bin\\mocha.cmd;
     } else {
       if (nodeMajor <= 6) {
-        cmd = '$(which node) $(which mocha) -r ts-node/register tests/**/*.test.ts';
+        cmd = `$(which node) ${mEnv} $(which mocha) ${mRequire}`;
       } else {
-        cmd = 'npx mocha -r ts-node/register tests/**/*.test.ts';
+        cmd = `npx ${mEnv} mocha ${mRequire}`;
       }
     }
     require('child_process').exec(cmd, (err, stdout) => {
@@ -301,6 +291,14 @@ module.exports = (grunt) => {
         cmd = 'npx mocha tests/**/*.test.js';
       }
     }
+    require('child_process').exec(cmd, (err, stdout) => {
+      grunt.log.write(stdout);
+      done(err);
+    });
+  });
+  grunt.registerTask('compile_test', 'run mocha', function () {
+    const done = this.async();
+    let cmd = "tsc --project './tsconfig.test.json'";
     require('child_process').exec(cmd, (err, stdout) => {
       grunt.log.write(stdout);
       done(err);
@@ -341,7 +339,6 @@ module.exports = (grunt) => {
      */
     'shell:tsc',
     'remove_comments:js',
-    'remove_comments:ext',
     /**
      * Task shell: prettier
      * Runs prettier from package.json

@@ -13,10 +13,10 @@
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "test": "grunt build && grunt test",
-    "mtest": "mocha -r ts-node/register tests/**/*.test.ts",
+    "test": "grunt test",
+    "mtest": "env TS_NODE_PROJECT=\"tsconfig.test.json\" mocha --require ts-node/register 'tests/**/*.test.ts'",
     "jtest": "mocha tests/**/*.test.js",
-    "testWithCoverage": "nyc -r lcov -e .ts -x \"*.test.ts\" mocha -r ts-node/register tests/**/*.test.ts && nyc report"
+    "testWithCoverage": "nyc -r lcov -e .ts -x \"*.test.ts\" env TS_NODE_PROJECT=\"tsconfig.test.json\" mocha mocha --require ts-node/register 'tests/**/*.test.ts' && nyc report"
   },
   "files": [
     "index.js",
