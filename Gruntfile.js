@@ -11,9 +11,11 @@ module.exports = (grunt) => {
     return parseInt(major, 10);
   }
   const nodeMajor = getNodeMajor();
-  const isES6Plus = false;
+  let isES6Plus = false;
   try {
-    const es6Map = new Map();
+    let es6Map = new Map();
+    es6Map.set('a', 1);
+    es6Map.set('b', 2);
     isES6Plus = true;
     grunt.log.writeln('ES6 (es2015) or greater');
     es6Map = null;
@@ -129,7 +131,7 @@ module.exports = (grunt) => {
           linein: true, // Whether to remove a line-in comment that exists in the line of code, it can be interpreted as a single-line comment in the line of code with /* or //.
           isCssLinein: false // Whether the file currently being processed is a CSS file
         },
-        src: './scratch/es6/main.js',
+        src: './lib/es6/main.js', //'./scratch/es6/main.js',
         expand: false,
         dest: './scratch/es6/node_utf16_char_codes.js'
       },
@@ -180,6 +182,12 @@ module.exports = (grunt) => {
         {
           src: './scratch/es6/node_utf16_char_codes.min.js',
           dest: './js/node_utf16_char_codes.min.js'
+        }]
+      },
+      final: {
+        files: [{
+          src: './scratch/nc/main.js',
+          dest: './index.js'
         }]
       }
     },
@@ -307,7 +315,7 @@ module.exports = (grunt) => {
     'clean:dirs',
     'clean:js',
     'shell:tsces6',
-    'concat:ext_es6',
+    // 'concat:ext_es6',
     'remove_comments:es6_js',
     'terser:main',
     'append_map_es6',
@@ -341,7 +349,8 @@ module.exports = (grunt) => {
     // 'prettier:format_js',
     // 'uglify:js',
     'copy:d',
-    'concat:ext'
+    //'concat:ext'
+    'copy:final'
   ]);
   // #region git
   grunt.registerTask('gitver', [

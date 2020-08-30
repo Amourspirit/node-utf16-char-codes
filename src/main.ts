@@ -1,4 +1,114 @@
-// #region codePointAt
+//#region fromCodePoint Extension
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint
+/**
+ * Self executing anonymous function using TS.
+ */
+(() => {
+  if (!String.fromCodePoint) {
+    const fpa = (...args: number[]) => {
+      const codeUnits = [];
+      let codeLen = 0;
+      let result = "";
+      for (const cp of args) {
+        let codePoint = cp;
+        // correctly handles all cases including `NaN`, `-Infinity`, `+Infinity`
+        // The surrounding `!(...)` is required to correctly handle `NaN` cases
+        // The (codePoint>>>0) === codePoint clause handles decimals and negatives
+        if (!(codePoint < 0x10FFFF && (codePoint >>> 0) === codePoint))
+          throw RangeError("Invalid code point: " + codePoint);
+        if (codePoint <= 0xFFFF) { // BMP code point
+          codeLen = codeUnits.push(codePoint);
+        } else { // Astral code point; split in surrogate halves
+          // https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+          codePoint -= 0x10000;
+          codeLen = codeUnits.push(
+            (codePoint >> 10) + 0xD800,  // highSurrogate
+            (codePoint % 0x400) + 0xDC00 // lowSurrogate
+          );
+        }
+        if (codeLen >= 0x3fff) {
+
+          result += String.fromCharCode.apply(null, codeUnits);
+          codeUnits.length = 0;
+        }
+      }
+
+      return result + String.fromCharCode.apply(null, codeUnits);
+    };
+    try { // IE 8 only supports `Object.defineProperty` on DOM elements
+      Object.defineProperty(String, "fromCodePoint", {
+        "value": fpa, "configurable": true, "writable": true
+      });
+    } catch (e) {
+      String.fromCodePoint = fpa;
+    }
+  }
+})();
+//#endregion
+//#region codepointAt Extension
+/**
+ * Self executing anonymous function using TS.
+ */
+(() => {
+  // Whatever is here will be executed as soon as the script is loaded.
+  if (!String.prototype.codePointAt) {
+    const defineProperty = (() => {
+      let result = null;
+
+      try {
+        const object = {};
+        const $defineProperty = Object.defineProperty;
+        result = $defineProperty(object, object.toString(), object) && $defineProperty;
+      } finally {
+        // do nothing
+      }
+      return result;
+    })();
+
+    const cpa = function (this: any, position: number) {
+      // 'this' is the string that is calling
+      if (this == null) {
+        throw TypeError();
+      }
+      const string = String(this);
+      const size = string.length;
+      // `ToInteger`
+      let index = position ? Number(position) : 0;
+      if (index !== index) { // better `isNaN`
+        index = 0;
+      }
+      // Account for out-of-bounds indices:
+      if (index < 0 || index >= size) {
+        return undefined;
+      }
+      // Get the first code unit
+      const first = string.charCodeAt(index);
+      let second: number;
+      if ( // check if it’s the start of a surrogate pair
+        first >= 0xD800 && first <= 0xDBFF && // high surrogate
+        size > index + 1 // there is a next code unit
+      ) {
+        second = string.charCodeAt(index + 1);
+        if (second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
+          // https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+          return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
+        }
+      }
+      return first;
+    };
+    if (defineProperty) {
+      defineProperty(String.prototype, 'codePointAt', {
+        'value': cpa,
+        'configurable': true,
+        'writable': true
+      });
+    } else {
+      String.prototype.codePointAt = cpa;
+    }
+  }
+})();
+//#endregion
+//#region codePointAt
 /**
  * Method returns a non-negative integer that is the Unicode code point value.  
  * This method was introduced to ECMAScript 2015 (6th Edition, ECMA-262) and is included
@@ -62,7 +172,7 @@ export const codePointAt = (str: string, pos: number = 0): number | undefined =>
   return first;
 }
 // #endregion
-// #region codePoints
+//#region codePoints
 /**
  * Options for codePoints
  * @param unique If true only code points that are unique will be returned in the array. Default false.
@@ -134,7 +244,7 @@ const getCpOptions = (defaultOptions: ICodePointOptions, options?: ICodePointOpt
   return options;
 }
 // #endregion
-// #region codePointFullWidth
+//#region codePointFullWidth
 /**
  * Test if a unicode code point is a full width character.
  * @param codePoint The code point to test
@@ -194,7 +304,7 @@ export const codePointFullWidth = (codePoint: number): boolean => {
   return false;
 }
 // #endregion fromCodePoint
-// #region fromCodePoint
+//#region fromCodePoint
 /**
  * Method returns a string created by using the specified sequence of code points.  
  * This method was introduced to ECMAScript 2015 (6th Edition, ECMA-262) and is included

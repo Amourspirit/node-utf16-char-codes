@@ -1,53 +1,125 @@
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
+(() => {
+    if (!String.fromCodePoint) {
+        const fpa = (...args) => {
+            const codeUnits = [];
+            let codeLen = 0;
+            let result = "";
+            for (const cp of args) {
+                let codePoint = cp;
+                if (!(codePoint < 0x10FFFF && (codePoint >>> 0) === codePoint))
+                    throw RangeError("Invalid code point: " + codePoint);
+                if (codePoint <= 0xFFFF) { 
+                    codeLen = codeUnits.push(codePoint);
+                }
+                else { 
+                    codePoint -= 0x10000;
+                    codeLen = codeUnits.push((codePoint >> 10) + 0xD800, 
+                    (codePoint % 0x400) + 0xDC00 
+                    );
+                }
+                if (codeLen >= 0x3fff) {
+                    result += String.fromCharCode.apply(null, codeUnits);
+                    codeUnits.length = 0;
+                }
+            }
+            return result + String.fromCharCode.apply(null, codeUnits);
+        };
+        try { 
+            Object.defineProperty(String, "fromCodePoint", {
+                "value": fpa, "configurable": true, "writable": true
+            });
         }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-exports.__esModule = true;
-exports.fromCodePoint = exports.codePointFullWidth = exports.codePoints = exports.codePointAt = void 0;
-exports.codePointAt = function (str, pos) {
-    if (pos === void 0) { pos = 0; }
+        catch (e) {
+            String.fromCodePoint = fpa;
+        }
+    }
+})();
+(() => {
+    if (!String.prototype.codePointAt) {
+        const defineProperty = (() => {
+            let result = null;
+            try {
+                const object = {};
+                const $defineProperty = Object.defineProperty;
+                result = $defineProperty(object, object.toString(), object) && $defineProperty;
+            }
+            finally {
+            }
+            return result;
+        })();
+        const cpa = function (position) {
+            if (this == null) {
+                throw TypeError();
+            }
+            const string = String(this);
+            const size = string.length;
+            let index = position ? Number(position) : 0;
+            if (index !== index) { 
+                index = 0;
+            }
+            if (index < 0 || index >= size) {
+                return undefined;
+            }
+            const first = string.charCodeAt(index);
+            let second;
+            if ( 
+            first >= 0xD800 && first <= 0xDBFF && 
+                size > index + 1 
+            ) {
+                second = string.charCodeAt(index + 1);
+                if (second >= 0xDC00 && second <= 0xDFFF) { 
+                    return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
+                }
+            }
+            return first;
+        };
+        if (defineProperty) {
+            defineProperty(String.prototype, 'codePointAt', {
+                'value': cpa,
+                'configurable': true,
+                'writable': true
+            });
+        }
+        else {
+            String.prototype.codePointAt = cpa;
+        }
+    }
+})();
+export const codePointAt = (str, pos = 0) => {
     if (str === null || str === undefined) {
         throw TypeError();
     }
     str = String(str);
-    var size = str.length;
-    var i = pos ? Number(pos) : 0;
+    const size = str.length;
+    let i = pos ? Number(pos) : 0;
     if (Number.isNaN(i)) {
         i = 0;
     }
     if (i < 0 || i >= size) {
         return undefined;
     }
-    var first = str.charCodeAt(i);
+    const first = str.charCodeAt(i);
     if (first >= 0xD800 && first <= 0xDBFF && size > i + 1) {
-        var second = str.charCodeAt(i + 1);
+        const second = str.charCodeAt(i + 1);
         if (second >= 0xDC00 && second <= 0xDFFF) {
             return ((first - 0xD800) * 0x400) + second - 0xDC00 + 0x10000;
         }
     }
     return first;
 };
-exports.codePoints = function (str, opts) {
+export const codePoints = (str, opts) => {
     opts = getCpOptions({ unique: false }, opts);
     if (typeof str !== 'string') {
-        throw new TypeError("Argument str must be type of string.");
+        throw new TypeError(`Argument str must be type of string.`);
     }
-    var result = [];
-    var index = 0;
-    var strC;
+    const result = [];
+    let index = 0;
+    let strC;
     while (index < str.length) {
         strC = str.charAt(index) + str.charAt(index + 1);
-        var point = Number(exports.codePointAt(strC));
+        const point = Number(codePointAt(strC));
         if (Number.isNaN(point)) {
-            throw new Error("An error occured getting code points. Unable to get code point at positions: " + index + " and " + (index + 1));
+            throw new Error(`An error occured getting code points. Unable to get code point at positions: ${index} and ${index + 1}`);
         }
         if (point > 0xffff) {
             index += 2;
@@ -62,13 +134,13 @@ exports.codePoints = function (str, opts) {
     }
     return result;
 };
-var getCpOptions = function (defaultOptions, options) {
+const getCpOptions = (defaultOptions, options) => {
     if (options === null || options === undefined ||
         typeof options === 'function') {
         return defaultOptions;
     }
     if (typeof options === 'boolean') {
-        defaultOptions = __assign({}, defaultOptions);
+        defaultOptions = Object.assign({}, defaultOptions);
         defaultOptions.unique = options;
         options = defaultOptions;
     }
@@ -77,7 +149,7 @@ var getCpOptions = function (defaultOptions, options) {
     }
     return options;
 };
-exports.codePointFullWidth = function (codePoint) {
+export const codePointFullWidth = (codePoint) => {
     if (Number.isNaN(codePoint)) {
         return false;
     }
@@ -101,16 +173,12 @@ exports.codePointFullWidth = function (codePoint) {
     }
     return false;
 };
-exports.fromCodePoint = function () {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    var codeUnits = [];
-    var codeLen = 0;
-    var result = '';
-    for (var index = 0, len = args.length; index !== len; ++index) {
-        var codePoint = +args[index];
+export const fromCodePoint = function (...args) {
+    const codeUnits = [];
+    let codeLen = 0;
+    let result = '';
+    for (let index = 0, len = args.length; index !== len; ++index) {
+        let codePoint = +args[index];
         if (!(codePoint < 0x10FFFF && (codePoint >>> 0) === codePoint)) {
             throw new RangeError("Invalid code point: " + codePoint);
         }
@@ -130,53 +198,3 @@ exports.fromCodePoint = function () {
     }
     return result + String.fromCharCode.apply(null, codeUnits);
 };
-
-(function () {
-  if (!String.prototype.codePointAt) {
-    var defineProperty = (function () {
-      try {
-        var object = {};
-        var $defineProperty = Object.defineProperty;
-        var result = $defineProperty(object, object, object) && $defineProperty;
-      } catch (error) { }
-      return result;
-    }());
-    var cpa = function (position) {
-      if (this == null) {
-        throw TypeError();
-      }
-      var str = String(this);
-      return exports.codePointAt(str, position);
-    };
-    if (defineProperty) {
-      defineProperty(String.prototype, 'codePointAt', {
-        'value': cpa,
-        'configurable': true,
-        'writable': true
-      });
-    } else {
-      String.prototype.codePointAt = cpa;
-    }
-  }
-}());
-(function () {
-  if (!String.fromCodePoint) {
-    var defineProperty = (function () {
-      try {
-        var object = {};
-        var $defineProperty = Object.defineProperty;
-        var result = $defineProperty(object, object, object) && $defineProperty;
-      } catch (error) { }
-      return result;
-    }());
-    if (defineProperty) {
-      defineProperty(String, 'fromCodePoint', {
-        'value': exports.fromCodePoint,
-        'configurable': true,
-        'writable': true
-      });
-    } else {
-      String.fromCodePoint = exports.fromCodePoint;
-    }
-  }
-}());

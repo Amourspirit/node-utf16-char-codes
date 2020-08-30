@@ -25,7 +25,7 @@ p = codePoints('Hello World!', true); // [72, 101, 108, 111, 32, 87, 114, 100, 3
 p = codePoints('0𧌠嶲0𧏨');             // [48, 160544, 195060, 48, 160744]
 ```
 
-```
+```text
 @param str The input string to get the code points for.
 
 @param opts (optional) Options, if boolean is passed in it will
@@ -48,9 +48,11 @@ console.log(codePointFullWidth(Number(('고').codePointAt(0)))); // true
 console.log(codePointFullWidth(Number(('A').codePointAt(0)))); // false
 console.log(codePointFullWidth(Infinity)); // false
 ```
-```
+
+```text
 @param codePoint The code point to test
 ```
+
 ### codePointAt([pos])
 
 Method returns a non-negative integer that is the Unicode code point value.  
@@ -62,7 +64,7 @@ This method was introduced to ECMAScript 2015 (6th Edition, ECMA-262) and is inc
 ('XYZ').codePointAt(42);          // undefined
 ```
 
-```
+```text
 @param pos (optional) Position of an element in the String to
        return the code point value from.
        Default value 0
