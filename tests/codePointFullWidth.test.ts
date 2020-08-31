@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { codePointFullWidth, codePointAt } from "../src/main";
+import { codePointFullWidth, codePointAt } from "../src/index";
 // #region Functions
 /**
  * Returns a random integer between min (inclusive) and max (inclusive).
@@ -25,7 +25,7 @@ describe("Test codePointFullWidth", () => {
     done();
   });
   it('should return true for random char from ＦＵＬＬＷＩＤＴＨ ＴＥＸＴ', (done) => {
-    let ran = getRandomInt(0, 13);
+    let ran = getRandomInt(0, (fullWidth.length -1));
     let p = Number(fullWidth.codePointAt(ran));
     expect(codePointFullWidth(p)).equal(true);
     done();

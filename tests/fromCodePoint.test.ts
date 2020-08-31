@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromCodePoint } from "../src/main";
+import { fromCodePoint } from "../src/index";
 describe("Test fromCodePoint", () => {
   it('should input 42 and equal *', (done) => {
     expect(fromCodePoint(42)).equal('*');

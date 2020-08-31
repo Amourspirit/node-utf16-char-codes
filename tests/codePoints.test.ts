@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { codePoints } from "../src/main";
+import { codePoints } from "../src/index";
 describe("Test codePoints", () => {
   it('should return code points of the string 10', (done) => {
     expect(codePoints('10')).deep.equal([49, 48]);

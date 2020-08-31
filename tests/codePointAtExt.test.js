@@ -11,11 +11,12 @@ describe('String.prototype.codePointAt: Remove string prototype codePointAt', fu
   });
 });
 
-describe('String.prototype.codePointAt: Import of index.js should reassign string prototype codePointAt to project version', function() {
+describe('String.prototype.codePointAt: Import of index.js should \
+reassign string prototype codePointAt to project version', function() {
   it('should have a string prototype codePointAt again', function(done) {
     // console.log('type of before eval', typeof String.prototype.codePointAt);
     expect(String.prototype.codePointAt).equal(null);
-    eval(fs.readFileSync(process.cwd() + '/scratch/lib/main.js').toString());
+    eval(fs.readFileSync(process.cwd() + '/scratch/lib/index.js').toString());
     expect(typeof String.prototype.codePointAt).equal('function');
     // console.log('typeof after eval' , typeof String.prototype.codePointAt);
     done();

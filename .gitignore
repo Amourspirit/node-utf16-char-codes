@@ -8,6 +8,7 @@
 /lib
 /coverage
 /scratch
+/dist
 node_modules
 /*.log
 ephox-*.tgz

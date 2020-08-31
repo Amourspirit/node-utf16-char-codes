@@ -35,37 +35,7 @@ module.exports = (grunt) => {
     grunt.file.delete(file, { force: true });
     grunt.file.write(file, contents, options);
   }
-  const bumpVerson = (segment) => {
-    const file = 'package.json';
-    const jpkg = grunt.file.readJSON(file);
-    const verRegex = /(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)/;
-    const verStr = jpkg.version;
-    const major = parseInt(verStr.replace(verRegex, '$1'), 10);
-    const minor = parseInt(verStr.replace(verRegex, '$2'), 10);
-    const build = parseInt(verStr.replace(verRegex, '$3'), 10);
-    const save = false;
-    if (segment === 'build') {
-      build++;
-      save = true;
-    } else if (segment === 'minor') {
-      minor++;
-      build = 0;
-      save = true;
-    } else if (segment === 'major') {
-      major++;
-      minor = 0;
-      build = 0;
-      save = true;
-    }
-    if (save === true) {
-      const newVer = major + '.' + minor + '.' + build;
-      jpkg.version = newVer;
-      grunt.file.write(file, JSON.stringify(jpkg, null, 2));
-      return newVer;
-    } else {
-      return verStr;
-    }
-  }
+
   // #endregion
   // #region grunt init config
   grunt.initConfig({
@@ -90,12 +60,8 @@ module.exports = (grunt) => {
     },
     clean: {
       dirs: ['scratch', 'dist', 'lib'],
-      test: ['scratch'],
-      js: ['js'],
-      files: [
-        './index.js',
-        'index.d.ts'
-      ]
+      lib: ['lib'],
+      test: ['scratch']
     },
 
     tslint: {
@@ -107,51 +73,9 @@ module.exports = (grunt) => {
 
     shell: {
       tsc: 'tsc',
-      tsces6: 'tsc @tsconfiges3.txt',
+      rollup: 'rollup -c'
     },
-    remove_comments: {
-      js: {
-        options: {
-          multiline: true, // Whether to remove multi-line block comments
-          singleline: true, // Whether to remove the comment of a single line.
-          keepSpecialComments: false, // Whether to keep special comments, like: /*! !*/
-          linein: true, // Whether to remove a line-in comment that exists in the line of code, it can be interpreted as a single-line comment in the line of code with /* or //.
-          isCssLinein: false // Whether the file currently being processed is a CSS file
-        },
-        cwd: 'lib/',
-        src: '**/*.js',
-        expand: true,
-        dest: 'scratch/nc/'
-      },
-      es6_js: {
-        options: {
-          multiline: true, // Whether to remove multi-line block comments
-          singleline: true, // Whether to remove the comment of a single line.
-          keepSpecialComments: false, // Whether to keep special comments, like: /*! !*/
-          linein: true, // Whether to remove a line-in comment that exists in the line of code, it can be interpreted as a single-line comment in the line of code with /* or //.
-          isCssLinein: false // Whether the file currently being processed is a CSS file
-        },
-        src: './lib/es6/main.js', //'./scratch/es6/main.js',
-        expand: false,
-        dest: './scratch/es6/node_utf16_char_codes.js'
-      },
-    },
-    prettier: {
-      format_js: {
-        options: {
-          singleQuote: true,
-          printWidth: 120,
-          trailingComma: 'all',
-          tabWidth: 2,
-          useTabs: true,
-          endOfLine: 'lf',
-          progress: false // By default, a progress bar is not shown. You can opt into this behavior by passing true.
-        },
-        files: {
-          'index.js': 'scratch/nc/main.js'
-        }
-      }
-    },
+
     copy: {
       d: {
         files: [{
@@ -159,16 +83,6 @@ module.exports = (grunt) => {
           src: './lib/main.d.ts',
           dest: './index.d.ts'
           // expand: false
-        }]
-      },
-      es6: {
-        files: [{
-          src: './scratch/es6/node_utf16_char_codes.js',
-          dest: './js/node_utf16_char_codes.js'
-        },
-        {
-          src: './scratch/es6/node_utf16_char_codes.min.js',
-          dest: './js/node_utf16_char_codes.min.js'
         }]
       },
       final: {
@@ -199,50 +113,15 @@ module.exports = (grunt) => {
         }
       }
     },
-    replace: {
-      es6_map: {
-        options: {
-          patterns: [
-            {
-              match: /"sources":\["\.\/scratch\/es6\/(.*?)"]/g,
-              replacement: '"sources":["$1"]'
-            }
-          ]
-        },
-        files: [
-          { expand: true, flatten: true, src: ['scratch/es6/node_utf16_char_codes.min.js.map'], dest: 'js/' }
-        ]
-      }
-    }
   });
   // #endregion
   // #region grunt require and load npm task
   require('load-grunt-tasks')(grunt);
   grunt.loadNpmTasks('grunt-env');
-  grunt.loadNpmTasks('grunt-prettier');
-  grunt.loadNpmTasks('grunt-remove-comments');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-replace');
   // #endregion
   grunt.registerTask('default', [
     'build'
-  ]);
-  grunt.registerTask('build_build', [
-    'bumpBuild',
-    'build_git'
-  ]);
-  grunt.registerTask('build_minor', [
-    'bumpMinor',
-    'build_git',
-  ]);
-  grunt.registerTask('build_major', [
-    'bumpMajor',
-    'build_git',
-  ]);
-  grunt.registerTask('build_git', [
-    'env:build',
-    'test',
-    'gitver'
   ]);
   grunt.registerTask('envcheck', ['version_bump:build', 'env:dev', 'devtest']);
   grunt.registerTask('ver', () => {
@@ -304,22 +183,6 @@ module.exports = (grunt) => {
       done(err);
     });
   });
-  grunt.registerTask('append_map_es6', () => {
-    const file = 'scratch/es6/node_utf16_char_codes.min.js';
-    const strMap = '\n//# sourceMappingURL=node_utf16_char_codes.min.js.map';
-    appendToFile(file, strMap);
-  });
-  grunt.registerTask('es6', [
-    'clean:dirs',
-    'clean:js',
-    'shell:tsces6',
-    // 'concat:ext_es6',
-    'remove_comments:es6_js',
-    'terser:main',
-    'append_map_es6',
-    'copy:es6',
-    'replace:es6_map'
-  ]);
   grunt.registerTask('build', [
     'env:build',
     /*
@@ -327,85 +190,18 @@ module.exports = (grunt) => {
      * clean the folder out from any previous build
      */
     'clean:dirs',
-    'clean:files',
     /*
      * Task tslint
      * check the ts files for any lint issues
      */
     'tslint',
+    'shell:rollup',
     /*
      * Task shell: tsc
      * run tsc, outputs to /lib
      */
     'shell:tsc',
-    'remove_comments:js',
-    /**
-     * Task shell: prettier
-     * Runs prettier from package.json
-     */
-    // 'prettier:format_js',
-    // 'uglify:js',
-    'copy:d',
-    //'concat:ext'
-    'copy:final'
-  ]);
-  // #region git
-  grunt.registerTask('gitver', [
-    'gitveradd',
-    'gitvercommit',
-    'gitvertag',
-    'gitverpush'
+    'clean:lib'
   ]);
 
-  grunt.registerTask('gitveradd', 'run git add', () => {
-    const command = 'git add .';
-    grunt.log.writeln("Executing command:" + command);
-    const done = this.async();
-    require('child_process').exec(command, (err, stdout) => {
-      grunt.log.write(stdout);
-      done(err);
-    });
-  });
-  grunt.registerTask('gitvercommit', 'run git commit', () => {
-    const command = 'git commit -m "' + process.env.VERSION + '"';
-    grunt.log.writeln("Executing command:" + command);
-    const done = this.async();
-    require('child_process').exec(command, (err, stdout) => {
-      grunt.log.write(stdout);
-      done(err);
-    });
-  });
-  grunt.registerTask('gitvertag', 'run git tag', () => {
-    const command = 'git tag v' + process.env.VERSION;
-    grunt.log.writeln("Executing command:" + command);
-    const done = this.async();
-    require('child_process').exec(command, (err, stdout) => {
-      grunt.log.write(stdout);
-      done(err);
-    });
-  });
-  grunt.registerTask('gitverpush', 'run git push', () => {
-    const command = 'git push origin && git push --tag';
-    grunt.log.writeln("Executing command:" + command);
-    const done = this.async();
-    require('child_process').exec(command, (err, stdout) => {
-      grunt.log.write(stdout);
-      done(err);
-    });
-  });
-  // #endregion
-  // #region Version
-  grunt.registerTask('bumpBuild', 'Bump version build level', () => {
-    const ver = bumpVerson('build');
-    grunt.log.writeln('Current Version', ver);
-  });
-  grunt.registerTask('bumpMinor', 'Bump version minor level', () => {
-    const ver = bumpVerson('minor');
-    grunt.log.writeln('Current Version', ver);
-  });
-  grunt.registerTask('bumpMajor', 'Bump version minor level', () => {
-    const ver = bumpVerson('major');
-    grunt.log.writeln('Current Version', ver);
-  });
-  // #endregion
 };

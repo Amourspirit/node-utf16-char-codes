@@ -14,7 +14,7 @@ describe('String.fromCodePoint: Remove String fromCodePoint', function () {
 describe('String.fromCodePoint: Import of index.js should reassign String fromCodePoint to project version', function () {
   it('should have a String fromCodePoint again', function (done) {
     expect(String.fromCodePoint).equal(null);
-    eval(fs.readFileSync(process.cwd() + '/scratch/lib/main.js').toString());
+    eval(fs.readFileSync(process.cwd() + '/scratch/lib/index.js').toString());
     expect(typeof String.fromCodePoint).equal('function');
     done();
   });

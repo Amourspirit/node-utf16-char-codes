@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { codePointAt } from "../src/main";
+import { codePointAt } from "../src/index";
 describe('String that starts with a BMP symbol', () => {
   it('should check for 🐴  with no position in a string and equal 0x1F434', (done) => {
     expect(codePointAt('🐴')).equal(0x1F434);
